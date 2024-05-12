@@ -1,5 +1,6 @@
 import json
 import time
+import argparse
 
 import requests
 from bs4 import BeautifulSoup
@@ -18,9 +19,9 @@ def fetch_buildId():
     return True, script_data.get("buildId", "")
 
 
-def get_access_token(username, password):
+def get_access_token(username, password, otp):
     headers_login = {"Content-Type": "application/json"}
-    data_login = {"username": username, "password": password}
+    data_login = {"username": username, "password": password, "otp": otp}
     response_login = requests.post(constants.LOGIN_API_URL, headers=headers_login, json=data_login)
 
     if response_login.status_code != 201:
@@ -72,8 +73,14 @@ def auth():
 
     time.sleep(1)
 
+
+    # Read OTP as a flag
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p", "--otp", help="OTP")
+    args = parser.parse_args()
+
     # Get Access Token
-    success, access_token = get_access_token(constants.ACADEMY_USERNAME, constants.ACADEMY_PASSWORD)
+    success, access_token = get_access_token(constants.ACADEMY_USERNAME, constants.ACADEMY_PASSWORD, args.otp)
     if not success:
         print(access_token)  # In case of failure, the access_token variable will contain the error message.
         exit(1)
